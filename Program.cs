@@ -9,7 +9,9 @@ namespace PracticantWorkerApp
         public string FirstName { get; set; }
         public string University { get; set; }
 
-        // Метод для задання даних вручну
+        /// <summary>
+        /// Задання даних практиканта через консольний ввід.
+        /// </summary>
         public virtual void SetData()
         {
             Console.Write("Введіть прізвище практиканта: ");
@@ -22,7 +24,9 @@ namespace PracticantWorkerApp
             University = Console.ReadLine();
         }
 
-        // Метод для перевірки, чи є прізвище симетричним (паліндром)
+        /// <summary>
+        /// Перевірка, чи є прізвище симетричним (паліндромом).
+        /// </summary>
         public virtual bool IsLastNameSymmetric()
         {
             if (string.IsNullOrWhiteSpace(LastName)) return false;
@@ -34,7 +38,9 @@ namespace PracticantWorkerApp
             return lower == new string(reversed);
         }
 
-        // Метод для виводу інформації
+        /// <summary>
+        /// Вивід інформації про практиканта.
+        /// </summary>
         public virtual void DisplayInfo()
         {
             Console.WriteLine($"\nПрактикант: {FirstName} {LastName}");
@@ -49,14 +55,13 @@ namespace PracticantWorkerApp
         public string GraduatedUniversity { get; set; }
         public string Position { get; set; }
 
-        // Перевантажений метод для задання даних вручну
+        /// <summary>
+        /// Перевизначений метод для задання даних працівника.
+        /// Викликає базовий метод для ПІБ, а також додає специфічні поля.
+        /// </summary>
         public override void SetData()
         {
-            Console.Write("Введіть прізвище працівника: ");
-            LastName = Console.ReadLine();
-
-            Console.Write("Введіть ім'я працівника: ");
-            FirstName = Console.ReadLine();
+            base.SetData(); // виклик базового методу для задання прізвища, імені та ВУЗу
 
             Console.Write("Введіть навчальний заклад, який закінчив: ");
             GraduatedUniversity = Console.ReadLine();
@@ -72,8 +77,15 @@ namespace PracticantWorkerApp
 
                 if (DateTime.TryParse(input, out DateTime hireDate))
                 {
-                    HireDate = hireDate;
-                    break;
+                    if (hireDate <= DateTime.Now)
+                    {
+                        HireDate = hireDate;
+                        break;
+                    }
+                    else
+                    {
+                        Console.WriteLine("❌ Дата найму не може бути у майбутньому.");
+                    }
                 }
                 else
                 {
@@ -82,19 +94,24 @@ namespace PracticantWorkerApp
             }
         }
 
-        // Метод для обчислення стажу роботи у роках
+        /// <summary>
+        /// Обчислення стажу роботи у роках.
+        /// </summary>
         public int GetExperience()
         {
             DateTime now = DateTime.Now;
             int years = now.Year - HireDate.Year;
 
+            // Якщо ще не пройшов день народження стажу у цьому році – відняти 1
             if (now.Month < HireDate.Month || (now.Month == HireDate.Month && now.Day < HireDate.Day))
                 years--;
 
             return years >= 0 ? years : 0;
         }
 
-        // Метод для виводу інформації
+        /// <summary>
+        /// Вивід інформації про працівника.
+        /// </summary>
         public override void DisplayInfo()
         {
             Console.WriteLine($"\nПрацівник: {FirstName} {LastName}");
