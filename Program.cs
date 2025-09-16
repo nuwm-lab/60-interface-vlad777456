@@ -2,87 +2,135 @@ using System;
 
 namespace PracticantWorkerApp
 {
-    // Базовий клас Практикант
+    // ---------------- Базовий клас "Практикант" ----------------
     class Practicant
     {
         public string LastName { get; set; }
         public string FirstName { get; set; }
         public string University { get; set; }
 
-        // Метод для задання даних
-        public virtual void SetData(string lastName, string firstName, string university)
+        // Метод для задання даних вручну
+        public virtual void SetData()
         {
-            LastName = lastName;
-            FirstName = firstName;
-            University = university;
+            Console.Write("Введіть прізвище практиканта: ");
+            LastName = Console.ReadLine();
+
+            Console.Write("Введіть ім'я практиканта: ");
+            FirstName = Console.ReadLine();
+
+            Console.Write("Введіть назву ВУЗу: ");
+            University = Console.ReadLine();
         }
 
-        // Метод для перевірки, чи є прізвище симетричним (паліндромом)
+        // Метод для перевірки, чи є прізвище симетричним (паліндром)
         public virtual bool IsLastNameSymmetric()
         {
+            if (string.IsNullOrWhiteSpace(LastName)) return false;
+
             string lower = LastName.ToLower();
             char[] reversed = lower.ToCharArray();
             Array.Reverse(reversed);
+
             return lower == new string(reversed);
         }
 
-        // Вивід інформації
+        // Метод для виводу інформації
         public virtual void DisplayInfo()
         {
-            Console.WriteLine($"Практикант: {FirstName} {LastName}, ВУЗ: {University}");
+            Console.WriteLine($"\nПрактикант: {FirstName} {LastName}");
+            Console.WriteLine($"ВУЗ: {University}");
         }
     }
 
-    // Похідний клас Працівник фірми
+    // ---------------- Похідний клас "Працівник фірми" ----------------
     class Worker : Practicant
     {
         public DateTime HireDate { get; set; }
         public string GraduatedUniversity { get; set; }
         public string Position { get; set; }
 
-        // Перевантажений метод для задання даних
-        public void SetData(string lastName, string firstName, string graduatedUniversity, string position, DateTime hireDate)
+        // Перевантажений метод для задання даних вручну
+        public override void SetData()
         {
-            LastName = lastName;
-            FirstName = firstName;
-            GraduatedUniversity = graduatedUniversity;
-            Position = position;
-            HireDate = hireDate;
+            Console.Write("Введіть прізвище працівника: ");
+            LastName = Console.ReadLine();
+
+            Console.Write("Введіть ім'я працівника: ");
+            FirstName = Console.ReadLine();
+
+            Console.Write("Введіть навчальний заклад, який закінчив: ");
+            GraduatedUniversity = Console.ReadLine();
+
+            Console.Write("Введіть посаду: ");
+            Position = Console.ReadLine();
+
+            // Обробка виключень при введенні дати
+            while (true)
+            {
+                Console.Write("Введіть дату прийому на роботу (рррр-мм-дд): ");
+                string input = Console.ReadLine();
+
+                if (DateTime.TryParse(input, out DateTime hireDate))
+                {
+                    HireDate = hireDate;
+                    break;
+                }
+                else
+                {
+                    Console.WriteLine("❌ Невірний формат дати. Спробуйте ще раз.");
+                }
+            }
         }
 
-        // Метод для обчислення стажу роботи
+        // Метод для обчислення стажу роботи у роках
         public int GetExperience()
         {
             DateTime now = DateTime.Now;
             int years = now.Year - HireDate.Year;
+
             if (now.Month < HireDate.Month || (now.Month == HireDate.Month && now.Day < HireDate.Day))
                 years--;
-            return years;
+
+            return years >= 0 ? years : 0;
         }
 
-        // Вивід інформації
+        // Метод для виводу інформації
         public override void DisplayInfo()
         {
-            Console.WriteLine($"Працівник: {FirstName} {LastName}, Посада: {Position}, ВУЗ: {GraduatedUniversity}, Дата прийому: {HireDate.ToShortDateString()}");
+            Console.WriteLine($"\nПрацівник: {FirstName} {LastName}");
+            Console.WriteLine($"Посада: {Position}");
+            Console.WriteLine($"ВУЗ (закінчений): {GraduatedUniversity}");
+            Console.WriteLine($"Дата прийому: {HireDate.ToShortDateString()}");
+            Console.WriteLine($"Стаж роботи: {GetExperience()} років");
         }
     }
 
+    // ---------------- Головна програма ----------------
     class Program
     {
         static void Main(string[] args)
         {
-            // Створення об'єкта Практикант
-            Practicant pract = new Practicant();
-            pract.SetData("Anna", "Petrova", "Національний університет");
-            pract.DisplayInfo();
-            Console.WriteLine($"Прізвище симетричне: {pract.IsLastNameSymmetric()}\n");
+            try
+            {
+                // Створення практиканта
+                Practicant pract = new Practicant();
+                pract.SetData();
+                pract.DisplayInfo();
+                Console.WriteLine($"Прізвище симетричне: {pract.IsLastNameSymmetric()}\n");
 
-            // Створення об'єкта Працівник
-            Worker worker = new Worker();
-            worker.SetData("Oleh", "Ivanenko", "Київський політехнічний інститут", "Програміст", new DateTime(2018, 5, 10));
-            worker.DisplayInfo();
-            Console.WriteLine($"Стаж роботи: {worker.GetExperience()} років");
-            Console.WriteLine($"Прізвище симетричне: {worker.IsLastNameSymmetric()}");
+                // Створення працівника
+                Worker worker = new Worker();
+                worker.SetData();
+                worker.DisplayInfo();
+                Console.WriteLine($"Прізвище симетричне: {worker.IsLastNameSymmetric()}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"⚠ Сталася помилка: {ex.Message}");
+            }
+
+            Console.WriteLine("\nНатисніть будь-яку клавішу для завершення...");
+            Console.ReadKey();
         }
     }
 }
